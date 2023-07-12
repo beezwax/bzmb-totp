@@ -1,15 +1,29 @@
-const speakeasy = require("speakeasy");
+const generate = require("./totp.js");
 
-module.exports = {
-  
-  async microbond(fastify, options) {
-    fastify.get("/bzmb-totp-generator", (req, res) => {
-      const token = speakeasy.totp({
-      secret: secret,
-      encoding: 'base32'
-    });
-      return token;
-    });
+const generateSchema = {
+  body: {
+    type: "object",
+    properties: {
+      secret: { type: "string", minLength: 1 },
+      encoding: { type: "string", minLength: 1 },
+    },
+    required: ["secret"]
   },
-  options: {},
 };
+
+async function bzmbTotp(fastify) {
+  fastify.post("/bzmb-totp-generate", { schema: generateSchema }, async (req, res) => {
+    const { secret, encoding } = req.body;
+    try {
+      const token = generate(secret, encoding);
+      res
+        .code(200)
+        .send(token);
+    } catch (error) {
+      res
+        .send(error);
+    }
+  });
+}
+
+module.exports = { microbond: bzmbTotp };

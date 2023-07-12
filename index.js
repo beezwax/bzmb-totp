@@ -1,4 +1,4 @@
-const generate = require("./totp.js");
+const generate = require("./generate.js");
 
 const generateSchema = {
   body: {
